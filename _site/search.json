@@ -11,14 +11,21 @@
     "href": "index.html#how-to-use",
     "title": "My Lab Journal",
     "section": "How to use",
-    "text": "How to use\n\nAccept the assignment and get your own github repo.\nBlog/journal what you are doing in R, by editing the .qmd files.\nSee the links page for lots of helpful links on learning R.\nChange everything to make it your own.\nMake sure to render you website everytime before you want to upload changes\n\n\nnumbers &lt;- 1:1000\n\n# This will print the first 10 elements of the vector numbers\nnumbers[1:10]\n\n [1]  1  2  3  4  5  6  7  8  9 10\n\n# This will plot a histogram of 100 random elements of the vector numbers\nhist(sample(numbers, 100, replace = T))"
+    "text": "How to use\n\nAccept the assignment and get your own github repo.\nBlog/journal what you are doing in R, by editing the .qmd files.\nSee the links page for lots of helpful links on learning R.\nChange everything to make it your own.\nMake sure to render you website everytime before you want to upload changes\n\n\nnumbers &lt;- 1:1000\n\n# This will print the first 10 elements of the vector numbers\nnumbers[1:10]\n\n# This will plot a histogram of 100 random elements of the vector numbers\nhist(sample(numbers, 100, replace = T))"
   },
   {
     "objectID": "content/02_notes/05_class_notes.html",
     "href": "content/02_notes/05_class_notes.html",
     "title": "Class Notes",
     "section": "",
-    "text": "IMPORTANT: You can delete everything in here and start fresh. You might want to start by not deleting anything above this line until you know what that stuff is doing.\nThis is an .qmd file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a # in front of your text, it will create a top level-header."
+    "text": "IMPORTANT: You can delete everything in here and start fresh. You might want to start by not deleting anything above this line until you know what that stuff is doing."
+  },
+  {
+    "objectID": "content/02_notes/05_class_notes.html#header-2",
+    "href": "content/02_notes/05_class_notes.html#header-2",
+    "title": "Class Notes",
+    "section": "Header 2",
+    "text": "Header 2\n\nHeader 3\n\nHeader 4\n\nHeader 5\n\nHeader 6"
   },
   {
     "objectID": "content/01_journal/03_data_wrangling.html",
@@ -32,14 +39,21 @@
     "href": "content/01_journal/01_tidyverse.html",
     "title": "Tidyverse",
     "section": "",
-    "text": "Note\n\n\n\nYou can delete everything in here and start fresh.\nThis is a .qmd file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a # in front of your text, it will create a top level-header.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+    "text": "# Loading Libraries\nlibrary(tidyverse)\nlibrary(readxl)\n\n# Importing Files\nbikes_tbl &lt;- read_excel(\"~/GitHub/ss24-bdsb-Adrian-0402/content/01_journal/01_tidyverse_files/01_bike_sales/01_raw_data/bikes.xlsx\")\norderlines_tbl &lt;- read_excel(\"~/GitHub/ss24-bdsb-Adrian-0402/content/01_journal/01_tidyverse_files/01_bike_sales/01_raw_data/orderlines.xlsx\")\nbikeshops_tbl &lt;- read_excel(\"~/GitHub/ss24-bdsb-Adrian-0402/content/01_journal/01_tidyverse_files/01_bike_sales/01_raw_data/bikeshops.xlsx\")\n\n# Joining Data \nbike_orderlines_joined_tbl &lt;- orderlines_tbl %&gt;%\n  left_join(bikes_tbl, by = c(\"product.id\" = \"bike.id\")) %&gt;%\n  left_join(bikeshops_tbl, by = c(\"customer.id\" = \"bikeshop.id\"))\n\n# Wrangling Data\nbike_orderlines_wrangled_tbl &lt;- bike_orderlines_joined_tbl %&gt;%\n  separate( col = location,\n            into = c(\"city\",\"state\"),\n            sep = \", \") %&gt;% \n  mutate(total.price = price * quantity) %&gt;% \n  select(-...1, -gender) %&gt;%\n  rename(bikeshop = name) %&gt;% \n  set_names(names(.) %&gt;% str_replace_all(\"\\\\.\", \"_\"))"
   },
   {
-    "objectID": "content/01_journal/01_tidyverse.html#header-2",
-    "href": "content/01_journal/01_tidyverse.html#header-2",
+    "objectID": "content/01_journal/01_tidyverse.html#by-location-state",
+    "href": "content/01_journal/01_tidyverse.html#by-location-state",
     "title": "Tidyverse",
-    "section": "\n2.1 Header 2",
-    "text": "2.1 Header 2\nHeader 3\nHeader 4\nHeader 5\nHeader 6"
+    "section": "\n2.1 By Location (State)",
+    "text": "2.1 By Location (State)\n\n# Manipulate\nsales_by_state_tbl &lt;- bike_orderlines_wrangled_tbl %&gt;% \n  select(state, total_price) %&gt;% \n  group_by(state) %&gt;% \n  summarize(sales = sum(total_price)) %&gt;% \n  mutate(sales_text = scales::dollar(sales, big.mark = \".\", \n                                     decimal.mark = \",\", \n                                     prefix = \"\", \n                                     suffix = \" €\"))\n\n#Visualize\nsales_by_state_tbl %&gt;%\n  ggplot(aes(x = state, y = sales)) +\n  geom_col(fill = \"#16C17C\") +\n  geom_label(aes(label = sales_text)) +\n  scale_y_continuous(labels = scales::dollar_format(big.mark = \".\", \n                                                    decimal.mark = \",\", \n                                                    prefix = \"\", \n                                                    suffix = \" €\")) +\n  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +\n  labs(\n    title    = \"Revenue by state\",\n    x = \"\", # Override defaults for x and y\n    y = \"Revenue\"\n  )\n\n\n\nRevenue by different states"
+  },
+  {
+    "objectID": "content/01_journal/01_tidyverse.html#by-location-state-and-year",
+    "href": "content/01_journal/01_tidyverse.html#by-location-state-and-year",
+    "title": "Tidyverse",
+    "section": "\n2.2 By Location (State) and year",
+    "text": "2.2 By Location (State) and year\n\n# Manipulate\nlibrary(lubridate)\n\nsales_by_state_year_tbl &lt;- bike_orderlines_wrangled_tbl %&gt;%\n  select(state, order_date, total_price) %&gt;% \n  mutate(year = year(order_date)) %&gt;% \n  group_by(year, state) %&gt;% \n  summarize(sales = sum(total_price)) %&gt;% \n  ungroup() %&gt;% \n  mutate(sales_text = scales::dollar(sales, big.mark = \".\", \n                                     decimal.mark = \",\", \n                                     prefix = \"\", \n                                     suffix = \" €\"))\n\n# Visualize\nsales_by_state_year_tbl %&gt;%\n  \n  # Set up x, y, fill\n  ggplot(aes(x = year, y = sales, fill = state)) +\n  \n  # Geometries\n  geom_col() + # Run up to here to get a stacked bar plot\n  \n  # Facet\n  facet_wrap(~ state) +\n  \n  # Formatting\n  scale_y_continuous(labels = scales::dollar_format(big.mark = \".\",\n                                                    scale = 0.000001,\n                                                    decimal.mark = \",\", \n                                                    prefix = \"\", \n                                                    suffix = \"m €\")) +\n  labs(\n    title = \"Revenue by year and state\",\n    fill = \"States\" # Changes the legend name\n  )\n\n\n\nRevenue by different states and year"
   },
   {
     "objectID": "content/01_journal/02_data_acquisition.html",
