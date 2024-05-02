@@ -1,13 +1,3 @@
----
-title: "Data Acquisition"
-author: "Adrian Florea"
----
-
-# Getting some data through Spotify API
-
-```{r}
-#| eval: false
-
 #Spotify API
 
 library(spotifyr) #install via devtools::install_github('charlie86/spotifyr')
@@ -59,4 +49,9 @@ top_tracks_wrangled_tbl %>%
 #8 Draper, Laura Brehm          Pressure           318.537s (~5.31 minutes)         35
 #9 Tut Tut Child, Danyka Nadeau Breathe            275.121s (~4.59 minutes)         31
 #10 Nomyn, Veela                Be Honest          223.655s (~3.73 minutes)         30
-```
+
+
+  
+  
+
+
