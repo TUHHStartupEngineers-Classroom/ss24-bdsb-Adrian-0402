@@ -158,6 +158,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul class="collapse">
 <li><a href="#getting-some-data-through-spotify-api" id="toc-getting-some-data-through-spotify-api" class="nav-link active" data-scroll-target="#getting-some-data-through-spotify-api"><span class="header-section-number">1</span> Getting some data through Spotify API</a></li>
+  <li><a href="#webscraping---radon-bikes" id="toc-webscraping---radon-bikes" class="nav-link" data-scroll-target="#webscraping---radon-bikes"><span class="header-section-number">2</span> Webscraping - RADON Bikes</a></li>
   </ul></nav>
     </div>
 <!-- main -->
@@ -235,6 +236,176 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-49"><a href="#cb1-49"></a><span class="co">#8 Draper, Laura Brehm          Pressure           318.537s (~5.31 minutes)         35</span></span>
 <span id="cb1-50"><a href="#cb1-50"></a><span class="co">#9 Tut Tut Child, Danyka Nadeau Breathe            275.121s (~4.59 minutes)         31</span></span>
 <span id="cb1-51"><a href="#cb1-51"></a><span class="co">#10 Nomyn, Veela                Be Honest          223.655s (~3.73 minutes)         30</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="webscraping---radon-bikes" class="level1" data-number="2"><h1 data-number="2">
+<span class="header-section-number">2</span> Webscraping - RADON Bikes</h1>
+<div class="cell" data-hash="02_data_acquisition_cache/html/unnamed-chunk-2_f16ed0174248c5ab8b96b514583fd4d8">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Webscraping ----</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="co"># 1.0 Libraries ----</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="fu">library</span>(tidyverse) <span class="co"># Main Package - Loads dplyr, purrr, etc.</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="fu">library</span>(rvest)     <span class="co"># HTML Hacking &amp; Web Scraping</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="co"># 1.1 Collect product categories ----</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a></span>
+<span id="cb2-9"><a href="#cb2-9"></a>url_home <span class="ot">&lt;-</span> <span class="st">"https://www.radon-bikes.de/en/"</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>html_home <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url_home)</span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a>bike_categories_chr <span class="ot">&lt;-</span> html_home <span class="sc">%&gt;%</span> </span>
+<span id="cb2-13"><a href="#cb2-13"></a>  <span class="fu">html_elements</span>(<span class="at">css =</span> <span class="st">".megamenu__item a"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-14"><a href="#cb2-14"></a>  <span class="fu">html_attr</span>(<span class="st">'href'</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-15"><a href="#cb2-15"></a>  <span class="fu">str_subset</span>(<span class="st">"wear"</span>, <span class="at">negate =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a>  <span class="fu">str_c</span>(<span class="st">"https://www.radon-bikes.de"</span>,  <span class="at">... =</span> _) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-17"><a href="#cb2-17"></a>  <span class="fu">paste</span>(<span class="st">"bikegrid/"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb2-18"><a href="#cb2-18"></a>  </span>
+<span id="cb2-19"><a href="#cb2-19"></a></span>
+<span id="cb2-20"><a href="#cb2-20"></a><span class="co"># 2.0 Collect bike data ----</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a></span>
+<span id="cb2-22"><a href="#cb2-22"></a>bike_category_url <span class="ot">&lt;-</span> bike_categories_chr[<span class="dv">2</span>]</span>
+<span id="cb2-23"><a href="#cb2-23"></a>html_bike_category <span class="ot">&lt;-</span> bike_category_url <span class="sc">%&gt;%</span> </span>
+<span id="cb2-24"><a href="#cb2-24"></a>  <span class="fu">read_html</span>()</span>
+<span id="cb2-25"><a href="#cb2-25"></a></span>
+<span id="cb2-26"><a href="#cb2-26"></a>bike_url_chr <span class="ot">&lt;-</span> html_bike_category <span class="sc">%&gt;%</span> </span>
+<span id="cb2-27"><a href="#cb2-27"></a>  <span class="fu">html_elements</span>(<span class="at">css =</span> <span class="st">".m-bikegrid__info a"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-28"><a href="#cb2-28"></a>  <span class="fu">html_attr</span>(<span class="st">'href'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-29"><a href="#cb2-29"></a>  <span class="fu">str_c</span>(<span class="st">"https://www.radon-bikes.de"</span>,  <span class="at">... =</span> _)</span>
+<span id="cb2-30"><a href="#cb2-30"></a>  </span>
+<span id="cb2-31"><a href="#cb2-31"></a></span>
+<span id="cb2-32"><a href="#cb2-32"></a><span class="co"># 2.1 Make a function ----</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a></span>
+<span id="cb2-34"><a href="#cb2-34"></a>get_bike_urls <span class="ot">&lt;-</span> <span class="cf">function</span>(url) {</span>
+<span id="cb2-35"><a href="#cb2-35"></a>  </span>
+<span id="cb2-36"><a href="#cb2-36"></a>  html_bike_category <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url)</span>
+<span id="cb2-37"><a href="#cb2-37"></a>  </span>
+<span id="cb2-38"><a href="#cb2-38"></a>  bike_url_chr <span class="ot">&lt;-</span> html_bike_category <span class="sc">%&gt;%</span> </span>
+<span id="cb2-39"><a href="#cb2-39"></a>    <span class="fu">html_elements</span>(<span class="at">css =</span> <span class="st">".m-bikegrid__info a"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-40"><a href="#cb2-40"></a>    <span class="fu">html_attr</span>(<span class="st">'href'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-41"><a href="#cb2-41"></a>    <span class="fu">str_c</span>(<span class="st">"https://www.radon-bikes.de"</span>,  <span class="at">... =</span> _)</span>
+<span id="cb2-42"><a href="#cb2-42"></a>  </span>
+<span id="cb2-43"><a href="#cb2-43"></a>  <span class="fu">return</span>(bike_url_chr)</span>
+<span id="cb2-44"><a href="#cb2-44"></a>}</span>
+<span id="cb2-45"><a href="#cb2-45"></a></span>
+<span id="cb2-46"><a href="#cb2-46"></a><span class="co"># Get all bike urls</span></span>
+<span id="cb2-47"><a href="#cb2-47"></a>bike_urls_chr <span class="ot">&lt;-</span> <span class="fu">map</span>(bike_categories_chr,get_bike_urls)</span>
+<span id="cb2-48"><a href="#cb2-48"></a></span>
+<span id="cb2-49"><a href="#cb2-49"></a><span class="co"># 3.1 Subsetting ----</span></span>
+<span id="cb2-50"><a href="#cb2-50"></a></span>
+<span id="cb2-51"><a href="#cb2-51"></a><span class="co"># Unnest the mess into one column</span></span>
+<span id="cb2-52"><a href="#cb2-52"></a>bike_urls_tbl <span class="ot">&lt;-</span> bike_urls_chr <span class="sc">%&gt;%</span> </span>
+<span id="cb2-53"><a href="#cb2-53"></a>  <span class="fu">as_tibble_col</span>(<span class="at">column_name =</span> <span class="st">"url"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-54"><a href="#cb2-54"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(<span class="st">"url"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-55"><a href="#cb2-55"></a>  <span class="fu">unique</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb2-56"><a href="#cb2-56"></a>  tidyr<span class="sc">::</span><span class="fu">separate_wider_regex</span>(<span class="at">cols =</span> url, <span class="at">patterns =</span> <span class="fu">c</span>(<span class="st">".*de/en/"</span>, <span class="at">family   =</span> <span class="st">"[^/]*"</span>, <span class="st">"/"</span>,</span>
+<span id="cb2-57"><a href="#cb2-57"></a>                                                       <span class="at">category =</span> <span class="st">"[^/]*"</span>, <span class="st">"/"</span>,</span>
+<span id="cb2-58"><a href="#cb2-58"></a>                                                       <span class="at">model    =</span> <span class="st">"[^/]*"</span>, <span class="st">"/"</span>,</span>
+<span id="cb2-59"><a href="#cb2-59"></a>                                                       <span class="st">".*"</span>), <span class="at">cols_remove =</span> F)</span>
+<span id="cb2-60"><a href="#cb2-60"></a></span>
+<span id="cb2-61"><a href="#cb2-61"></a><span class="co"># Select one category to analyze</span></span>
+<span id="cb2-62"><a href="#cb2-62"></a>bike_urls_fullsuspension_tbl <span class="ot">&lt;-</span> bike_urls_tbl <span class="sc">%&gt;%</span> </span>
+<span id="cb2-63"><a href="#cb2-63"></a>  <span class="fu">filter</span>(category <span class="sc">==</span> <span class="st">"fullsuspension"</span>)</span>
+<span id="cb2-64"><a href="#cb2-64"></a></span>
+<span id="cb2-65"><a href="#cb2-65"></a><span class="co"># 3.2 Get different data for 1 bike ----</span></span>
+<span id="cb2-66"><a href="#cb2-66"></a></span>
+<span id="cb2-67"><a href="#cb2-67"></a>html_bike_model <span class="ot">&lt;-</span> <span class="fu">read_html</span>(bike_urls_fullsuspension_tbl<span class="sc">$</span>url[<span class="dv">1</span>])</span>
+<span id="cb2-68"><a href="#cb2-68"></a></span>
+<span id="cb2-69"><a href="#cb2-69"></a>bike_model <span class="ot">&lt;-</span> html_bike_model <span class="sc">%&gt;%</span> </span>
+<span id="cb2-70"><a href="#cb2-70"></a>  <span class="fu">html_elements</span>(<span class="at">css =</span> <span class="st">".m-bikedetail__overlays-top .a-heading--medium"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-71"><a href="#cb2-71"></a>  <span class="fu">html_text</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb2-72"><a href="#cb2-72"></a>  <span class="fu">str_squish</span>()</span>
+<span id="cb2-73"><a href="#cb2-73"></a></span>
+<span id="cb2-74"><a href="#cb2-74"></a>bike_price <span class="ot">&lt;-</span> html_bike_model <span class="sc">%&gt;%</span> </span>
+<span id="cb2-75"><a href="#cb2-75"></a>  <span class="fu">html_elements</span>(<span class="at">css =</span> <span class="st">".m-bikedetail__price--active"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-76"><a href="#cb2-76"></a>  <span class="fu">html_text</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb2-77"><a href="#cb2-77"></a>  .[<span class="dv">1</span>] <span class="sc">%&gt;%</span> </span>
+<span id="cb2-78"><a href="#cb2-78"></a>  <span class="fu">parse_number</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb2-79"><a href="#cb2-79"></a>  <span class="fu">round</span>()</span>
+<span id="cb2-80"><a href="#cb2-80"></a></span>
+<span id="cb2-81"><a href="#cb2-81"></a>bike_weight <span class="ot">&lt;-</span> html_bike_model <span class="sc">%&gt;%</span> </span>
+<span id="cb2-82"><a href="#cb2-82"></a>  <span class="fu">html_elements</span>(<span class="at">css =</span> <span class="st">".spec-42 .m-feature-list__description"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-83"><a href="#cb2-83"></a>  <span class="fu">html_text</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb2-84"><a href="#cb2-84"></a>  <span class="fu">str_extract</span>(<span class="st">"[0-9]*[.,]*[0-9]*"</span>)  <span class="sc">%&gt;%</span> </span>
+<span id="cb2-85"><a href="#cb2-85"></a>  <span class="fu">str_replace</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">,"</span>,<span class="st">"</span><span class="sc">\\</span><span class="st">."</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-86"><a href="#cb2-86"></a>  <span class="fu">as.numeric</span>()</span>
+<span id="cb2-87"><a href="#cb2-87"></a></span>
+<span id="cb2-88"><a href="#cb2-88"></a><span class="co"># 3.3 Make a function ----</span></span>
+<span id="cb2-89"><a href="#cb2-89"></a></span>
+<span id="cb2-90"><a href="#cb2-90"></a>get_model_data <span class="ot">&lt;-</span> <span class="cf">function</span>(url) {</span>
+<span id="cb2-91"><a href="#cb2-91"></a>  </span>
+<span id="cb2-92"><a href="#cb2-92"></a>  html_bike_model <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url)</span>
+<span id="cb2-93"><a href="#cb2-93"></a>  </span>
+<span id="cb2-94"><a href="#cb2-94"></a>  bike_model <span class="ot">&lt;-</span> html_bike_model <span class="sc">%&gt;%</span> </span>
+<span id="cb2-95"><a href="#cb2-95"></a>    <span class="fu">html_elements</span>(<span class="at">css =</span> <span class="st">".m-bikedetail__overlays-top .a-heading--medium"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-96"><a href="#cb2-96"></a>    <span class="fu">html_text</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb2-97"><a href="#cb2-97"></a>    <span class="fu">str_squish</span>()</span>
+<span id="cb2-98"><a href="#cb2-98"></a>  </span>
+<span id="cb2-99"><a href="#cb2-99"></a>  bike_price <span class="ot">&lt;-</span> html_bike_model <span class="sc">%&gt;%</span> </span>
+<span id="cb2-100"><a href="#cb2-100"></a>    <span class="fu">html_elements</span>(<span class="at">css =</span> <span class="st">".m-bikedetail__price--active"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-101"><a href="#cb2-101"></a>    <span class="fu">html_text</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb2-102"><a href="#cb2-102"></a>    .[<span class="dv">1</span>] <span class="sc">%&gt;%</span> </span>
+<span id="cb2-103"><a href="#cb2-103"></a>    <span class="fu">parse_number</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb2-104"><a href="#cb2-104"></a>    <span class="fu">round</span>()</span>
+<span id="cb2-105"><a href="#cb2-105"></a>  </span>
+<span id="cb2-106"><a href="#cb2-106"></a>  bike_weight <span class="ot">&lt;-</span> html_bike_model <span class="sc">%&gt;%</span> </span>
+<span id="cb2-107"><a href="#cb2-107"></a>    <span class="fu">html_elements</span>(<span class="at">css =</span> <span class="st">".spec-42 .m-feature-list__description"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-108"><a href="#cb2-108"></a>    <span class="fu">html_text</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb2-109"><a href="#cb2-109"></a>    <span class="fu">str_extract</span>(<span class="st">"[0-9]*[.,]*[0-9]*"</span>)  <span class="sc">%&gt;%</span> </span>
+<span id="cb2-110"><a href="#cb2-110"></a>    <span class="fu">str_replace</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">,"</span>,<span class="st">"</span><span class="sc">\\</span><span class="st">."</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-111"><a href="#cb2-111"></a>    <span class="fu">as.numeric</span>()</span>
+<span id="cb2-112"><a href="#cb2-112"></a>  </span>
+<span id="cb2-113"><a href="#cb2-113"></a>  bike_data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">url   =</span> url,</span>
+<span id="cb2-114"><a href="#cb2-114"></a>                      <span class="at">model =</span> bike_model,</span>
+<span id="cb2-115"><a href="#cb2-115"></a>                      <span class="at">price =</span> bike_price,</span>
+<span id="cb2-116"><a href="#cb2-116"></a>                      <span class="at">weight =</span> bike_weight)</span>
+<span id="cb2-117"><a href="#cb2-117"></a>  </span>
+<span id="cb2-118"><a href="#cb2-118"></a>  <span class="fu">return</span>(bike_data)</span>
+<span id="cb2-119"><a href="#cb2-119"></a>}</span>
+<span id="cb2-120"><a href="#cb2-120"></a></span>
+<span id="cb2-121"><a href="#cb2-121"></a><span class="co"># 3.4 Test functions ----</span></span>
+<span id="cb2-122"><a href="#cb2-122"></a></span>
+<span id="cb2-123"><a href="#cb2-123"></a><span class="co"># For one bike</span></span>
+<span id="cb2-124"><a href="#cb2-124"></a><span class="co"># bike_model_data_tbl &lt;- get_model_data(url = bike_urls_fullsuspension_tbl$url[1])</span></span>
+<span id="cb2-125"><a href="#cb2-125"></a></span>
+<span id="cb2-126"><a href="#cb2-126"></a><span class="co"># For one category</span></span>
+<span id="cb2-127"><a href="#cb2-127"></a>bike_model_data_tbl <span class="ot">&lt;-</span> bike_urls_fullsuspension_tbl<span class="sc">$</span>url <span class="sc">%&gt;%</span> <span class="fu">map_dfr</span>(get_model_data)</span>
+<span id="cb2-128"><a href="#cb2-128"></a></span>
+<span id="cb2-129"><a href="#cb2-129"></a><span class="co"># For ALL categories</span></span>
+<span id="cb2-130"><a href="#cb2-130"></a><span class="co"># bike_model_data_tbl &lt;- bike_urls_tbl$url %&gt;% map_dfr(get_model_data)</span></span>
+<span id="cb2-131"><a href="#cb2-131"></a></span>
+<span id="cb2-132"><a href="#cb2-132"></a><span class="co"># 3.5 Join Data ----</span></span>
+<span id="cb2-133"><a href="#cb2-133"></a></span>
+<span id="cb2-134"><a href="#cb2-134"></a><span class="co"># For one category</span></span>
+<span id="cb2-135"><a href="#cb2-135"></a>bike_model_data_joined_tbl <span class="ot">&lt;-</span> bike_urls_fullsuspension_tbl <span class="sc">%&gt;%</span> </span>
+<span id="cb2-136"><a href="#cb2-136"></a>  <span class="fu">left_join</span>(bike_model_data_tbl, <span class="at">by =</span> <span class="fu">join_by</span>(<span class="st">"url"</span>))</span>
+<span id="cb2-137"><a href="#cb2-137"></a></span>
+<span id="cb2-138"><a href="#cb2-138"></a><span class="co"># For ALL categories</span></span>
+<span id="cb2-139"><a href="#cb2-139"></a><span class="co"># bike_model_data_joined_tbl &lt;- bike_urls_tbl %&gt;% </span></span>
+<span id="cb2-140"><a href="#cb2-140"></a><span class="co">#  left_join(bike_model_data_tbl, by = join_by("url"))</span></span>
+<span id="cb2-141"><a href="#cb2-141"></a></span>
+<span id="cb2-142"><a href="#cb2-142"></a><span class="co"># 4 Print for category "fullsuspension"</span></span>
+<span id="cb2-143"><a href="#cb2-143"></a></span>
+<span id="cb2-144"><a href="#cb2-144"></a>bike_model_data_joined_tbl <span class="sc">%&gt;%</span> </span>
+<span id="cb2-145"><a href="#cb2-145"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["family"],"name":[1],"type":["chr"],"align":["left"]},{"label":["category"],"name":[2],"type":["chr"],"align":["left"]},{"label":["model.x"],"name":[3],"type":["chr"],"align":["left"]},{"label":["url"],"name":[4],"type":["chr"],"align":["left"]},{"label":["model.y"],"name":[5],"type":["chr"],"align":["left"]},{"label":["price"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["weight"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"mountainbike","2":"fullsuspension","3":"skeen-trail-al","4":"https://www.radon-bikes.de/en/mountainbike/fullsuspension/skeen-trail-al/skeen-trail-al-70-2023/","5":"SKEEN TRAIL AL 7.0","6":"1428","7":"14.45"},{"1":"mountainbike","2":"fullsuspension","3":"skeen-trail-al","4":"https://www.radon-bikes.de/en/mountainbike/fullsuspension/skeen-trail-al/skeen-trail-al-80-2023/","5":"SKEEN TRAIL AL 8.0","6":"1680","7":"14.35"},{"1":"mountainbike","2":"fullsuspension","3":"skeen-trail","4":"https://www.radon-bikes.de/en/mountainbike/fullsuspension/skeen-trail/skeen-trail-90-2023/","5":"SKEEN TRAIL 9.0","6":"1848","7":"13.45"},{"1":"mountainbike","2":"fullsuspension","3":"skeen-trail","4":"https://www.radon-bikes.de/en/mountainbike/fullsuspension/skeen-trail/skeen-trail-100-2023/","5":"SKEEN TRAIL 10.0","6":"2184","7":"13.25"},{"1":"mountainbike","2":"fullsuspension","3":"skeen-trail","4":"https://www.radon-bikes.de/en/mountainbike/fullsuspension/skeen-trail/skeen-trail-100-hd-2023/","5":"SKEEN TRAIL 10.0 HD","6":"2688","7":"13.75"},{"1":"mountainbike","2":"fullsuspension","3":"slide-trail-al","4":"https://www.radon-bikes.de/en/mountainbike/fullsuspension/slide-trail-al/slide-trail-al-70-2024/","5":"SLIDE TRAIL AL 7.0","6":"1848","7":"14.90"},{"1":"mountainbike","2":"fullsuspension","3":"slide-trail-al","4":"https://www.radon-bikes.de/en/mountainbike/fullsuspension/slide-trail-al/slide-trail-al-80-2024/","5":"SLIDE TRAIL AL 8.0","6":"2268","7":"14.95"},{"1":"mountainbike","2":"fullsuspension","3":"slide-trail-al","4":"https://www.radon-bikes.de/en/mountainbike/fullsuspension/slide-trail-al/slide-trail-al-70-2023/","5":"SLIDE TRAIL AL 7.0","6":"1512","7":"14.70"},{"1":"mountainbike","2":"fullsuspension","3":"slide-trail-al","4":"https://www.radon-bikes.de/en/mountainbike/fullsuspension/slide-trail-al/slide-trail-al-80-2023/","5":"SLIDE TRAIL AL 8.0","6":"1764","7":"15.10"},{"1":"mountainbike","2":"fullsuspension","3":"slide-trail","4":"https://www.radon-bikes.de/en/mountainbike/fullsuspension/slide-trail/slide-trail-100-hd-2024/","5":"SLIDE TRAIL 10.0 HD","6":"4033","7":"13.95"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># A tibble: 10 × 7</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co">#   family       category       model.x        url                        model.y price weight</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co">#   &lt;chr&gt;        &lt;chr&gt;          &lt;chr&gt;          &lt;chr&gt;                      &lt;chr&gt;   &lt;dbl&gt;  &lt;dbl&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co">#1  mountainbike fullsuspension skeen-trail-al https://www.radon-bikes.d… SKEEN …  1428   14.4</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co">#2  mountainbike fullsuspension skeen-trail-al https://www.radon-bikes.d… SKEEN …  1680   14.4</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co">#3  mountainbike fullsuspension skeen-trail    https://www.radon-bikes.d… SKEEN …  1848   13.4</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co">#4  mountainbike fullsuspension skeen-trail    https://www.radon-bikes.d… SKEEN …  2184   13.2</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="co">#5  mountainbike fullsuspension skeen-trail    https://www.radon-bikes.d… SKEEN …  2688   13.8</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="co">#6  mountainbike fullsuspension slide-trail-al https://www.radon-bikes.d… SLIDE …  1848   14.9</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="co">#7  mountainbike fullsuspension slide-trail-al https://www.radon-bikes.d… SLIDE …  2268   15.0</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co">#8  mountainbike fullsuspension slide-trail-al https://www.radon-bikes.d… SLIDE …  1512   14.7</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#9  mountainbike fullsuspension slide-trail-al https://www.radon-bikes.d… SLIDE …  1764   15.1</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="co">#10 mountainbike fullsuspension slide-trail    https://www.radon-bikes.d… SLIDE …  4033   14.0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
