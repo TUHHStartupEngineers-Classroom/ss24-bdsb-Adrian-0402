@@ -1,15 +1,3 @@
----
-title: "Data Wrangling"
-author: "Adrian Florea"
----
-
-# Wrangling with Large Files [original data]
-
-```{r}
-#| eval: true
-#| message: false
-#| cache-lazy: false
-
 # 1.0 LIBRARIES ----
 
 # Tidyverse
@@ -156,13 +144,8 @@ compare_company = question_1_dt$assignee_id
 question_3_dt <- 
   combined_uspc_data[assignee_id %in% compare_company, .N, by = uspc_mainclass_id][order(-N)] %>% 
   head(n = 5)
-```
 
-# Print Solutions
-
-```{r}
-#| eval: true
-#| message: false
+# 6 PRINT SOLUTIONS
 
 # IBM has the most patents!
 question_1_dt
@@ -172,4 +155,3 @@ question_2_dt
 
 # Top 5 main classes : 257, 438, 370, 430, 365 (considering only the top 10)
 question_3_dt
-```
