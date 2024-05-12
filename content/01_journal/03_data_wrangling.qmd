@@ -35,7 +35,7 @@ col_types_1 <- list(
   disambig_assignee_individual_name_first = col_character(),
   disambig_assignee_individual_name_last = col_character(),
   disambig_assignee_organization = col_character(),
-  assignee_type = col_skip(),
+  assignee_type = col_double(),
   location_id = col_skip()
 )
 
@@ -120,27 +120,21 @@ setkey(combined_uspc_data, "uspc_mainclass_id")
 
 # 5.1 Question 1: Patent Dominance: What US company / corporation has the most patents? 
 #     List the 10 US companies with the most assigned/granted patents
+#     Important: Assignee type 2 filters by US companies
 
-question_1_dt <- assignee_data[, .N , by = .(assignee_id,
-                                          disambig_assignee_individual_name_first,
-                                          disambig_assignee_individual_name_last,
-                                          disambig_assignee_organization)][order(-N)] %>% 
-  setnames("disambig_assignee_individual_name_first","first_name") %>% 
-  setnames("disambig_assignee_individual_name_last","last_name") %>% 
+question_1_dt <- assignee_data[assignee_type == 2, .N , by = .(assignee_id,
+                                             disambig_assignee_organization)][order(-N)] %>% 
   setnames("disambig_assignee_organization","company") %>% 
   head(n = 10)
 
 # 5.2 Question 2: Recent patent activity: What US company had the most patents
 #     granted in 2019? List the top 10 companies with the most new granted 
-#     patents for 2019.
+#     patents for 2019. 
+#     Also filter by type 2 for US companies.
 
 question_2_dt <- 
-  combined_patent_data[year(patent_date) == 2019, .N, by = .(assignee_id,
-                                                             disambig_assignee_individual_name_first,
-                                                             disambig_assignee_individual_name_last,
-                                                             disambig_assignee_organization)][order(-N)] %>% 
-  setnames("disambig_assignee_individual_name_first","first_name") %>% 
-  setnames("disambig_assignee_individual_name_last","last_name") %>% 
+  combined_patent_data[year(patent_date) == 2019 & assignee_type == 2, .N, by = .(assignee_id,
+                                                                                  disambig_assignee_organization)][order(-N)] %>% 
   setnames("disambig_assignee_organization","company") %>% 
   head(n = 10)
 
@@ -148,13 +142,16 @@ question_2_dt <-
 #     For the top 10 companies (worldwide) with the most patents, 
 #     what are the top 5 USPTO tech main classes?
 
-# Note top 10 companies first
-compare_company = question_1_dt$assignee_id
+# Note top 10 companies (worldwide) first
+compare_company <- assignee_data[, .N, by = .(assignee_id)][order(-N),.(assignee_id)] %>% 
+  head(n = 10) %>% 
+  pull()
 
 # Subset all the patents for only the top 10 companies
 # Allow counting multiple uspc mainclasses for a patent, since subclasses would differ
 question_3_dt <- 
-  combined_uspc_data[assignee_id %in% compare_company, .N, by = uspc_mainclass_id][order(-N)] %>% 
+  combined_uspc_data[assignee_id %in% compare_company, .N, by = .(uspc_mainclass_id,
+                                                                  uspc_mainclass_title)][order(-N)] %>% 
   head(n = 5)
 ```
 
@@ -164,12 +161,13 @@ question_3_dt <-
 #| eval: true
 #| message: false
 
-# IBM has the most patents!
+# IBM has the most patents.
 question_1_dt
 
-# Samsung had the most newly granted patents in 2019!
+# IBM also had the most newly granted patents in 2019.
 question_2_dt
 
+# Most innovative tech sector: ACTIVE SOLID-STATE DEVICES (E.G., TRANSISTORS, SOLID-STATE DIODES)
 # Top 5 main classes : 257, 438, 370, 430, 365 (considering only the top 10)
 question_3_dt
 ```

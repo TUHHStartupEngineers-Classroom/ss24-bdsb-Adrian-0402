@@ -42,3 +42,9 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 .DS_Store
+source_data/wrangling_data/full_data/g_assignee_disambiguated.tsv
+source_data/wrangling_data/full_data/g_patent.tsv
+source_data/wrangling_data/full_data/g_uspc_at_issue.tsv
+source_data/wrangling_data/full_data/g_assignee_disambiguated.tsv
+source_data/wrangling_data/full_data/g_patent.tsv
+source_data/wrangling_data/full_data/g_uspc_at_issue.tsv
