@@ -184,7 +184,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header><section id="wrangling-with-large-files-original-data" class="level1" data-number="1"><h1 data-number="1">
 <span class="header-section-number">1</span> Wrangling with Large Files [original data]</h1>
-<div class="cell" data-hash="03_data_wrangling_cache/html/unnamed-chunk-1_750da973fa2852d3f4cd20aff7992b0a">
+<div class="cell" data-hash="03_data_wrangling_cache/html/unnamed-chunk-1_c38d76b3c77c2efa024b80c858e11a0b">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># 1.0 LIBRARIES ----</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a></span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="co"># Tidyverse</span></span>
@@ -210,7 +210,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-23"><a href="#cb1-23"></a>  <span class="at">disambig_assignee_individual_name_first =</span> <span class="fu">col_character</span>(),</span>
 <span id="cb1-24"><a href="#cb1-24"></a>  <span class="at">disambig_assignee_individual_name_last =</span> <span class="fu">col_character</span>(),</span>
 <span id="cb1-25"><a href="#cb1-25"></a>  <span class="at">disambig_assignee_organization =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-26"><a href="#cb1-26"></a>  <span class="at">assignee_type =</span> <span class="fu">col_skip</span>(),</span>
+<span id="cb1-26"><a href="#cb1-26"></a>  <span class="at">assignee_type =</span> <span class="fu">col_double</span>(),</span>
 <span id="cb1-27"><a href="#cb1-27"></a>  <span class="at">location_id =</span> <span class="fu">col_skip</span>()</span>
 <span id="cb1-28"><a href="#cb1-28"></a>)</span>
 <span id="cb1-29"><a href="#cb1-29"></a></span>
@@ -295,73 +295,71 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-108"><a href="#cb1-108"></a></span>
 <span id="cb1-109"><a href="#cb1-109"></a><span class="co"># 5.1 Question 1: Patent Dominance: What US company / corporation has the most patents? </span></span>
 <span id="cb1-110"><a href="#cb1-110"></a><span class="co">#     List the 10 US companies with the most assigned/granted patents</span></span>
-<span id="cb1-111"><a href="#cb1-111"></a></span>
-<span id="cb1-112"><a href="#cb1-112"></a>question_1_dt <span class="ot">&lt;-</span> assignee_data[, .N , by <span class="ot">=</span> .(assignee_id,</span>
-<span id="cb1-113"><a href="#cb1-113"></a>                                          disambig_assignee_individual_name_first,</span>
-<span id="cb1-114"><a href="#cb1-114"></a>                                          disambig_assignee_individual_name_last,</span>
-<span id="cb1-115"><a href="#cb1-115"></a>                                          disambig_assignee_organization)][<span class="fu">order</span>(<span class="sc">-</span>N)] <span class="sc">%&gt;%</span> </span>
-<span id="cb1-116"><a href="#cb1-116"></a>  <span class="fu">setnames</span>(<span class="st">"disambig_assignee_individual_name_first"</span>,<span class="st">"first_name"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-117"><a href="#cb1-117"></a>  <span class="fu">setnames</span>(<span class="st">"disambig_assignee_individual_name_last"</span>,<span class="st">"last_name"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-118"><a href="#cb1-118"></a>  <span class="fu">setnames</span>(<span class="st">"disambig_assignee_organization"</span>,<span class="st">"company"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-119"><a href="#cb1-119"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">10</span>)</span>
-<span id="cb1-120"><a href="#cb1-120"></a></span>
-<span id="cb1-121"><a href="#cb1-121"></a><span class="co"># 5.2 Question 2: Recent patent activity: What US company had the most patents</span></span>
-<span id="cb1-122"><a href="#cb1-122"></a><span class="co">#     granted in 2019? List the top 10 companies with the most new granted </span></span>
-<span id="cb1-123"><a href="#cb1-123"></a><span class="co">#     patents for 2019.</span></span>
-<span id="cb1-124"><a href="#cb1-124"></a></span>
-<span id="cb1-125"><a href="#cb1-125"></a>question_2_dt <span class="ot">&lt;-</span> </span>
-<span id="cb1-126"><a href="#cb1-126"></a>  combined_patent_data[<span class="fu">year</span>(patent_date) <span class="sc">==</span> <span class="dv">2019</span>, .N, by <span class="ot">=</span> .(assignee_id,</span>
-<span id="cb1-127"><a href="#cb1-127"></a>                                                             disambig_assignee_individual_name_first,</span>
-<span id="cb1-128"><a href="#cb1-128"></a>                                                             disambig_assignee_individual_name_last,</span>
-<span id="cb1-129"><a href="#cb1-129"></a>                                                             disambig_assignee_organization)][<span class="fu">order</span>(<span class="sc">-</span>N)] <span class="sc">%&gt;%</span> </span>
-<span id="cb1-130"><a href="#cb1-130"></a>  <span class="fu">setnames</span>(<span class="st">"disambig_assignee_individual_name_first"</span>,<span class="st">"first_name"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-131"><a href="#cb1-131"></a>  <span class="fu">setnames</span>(<span class="st">"disambig_assignee_individual_name_last"</span>,<span class="st">"last_name"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-132"><a href="#cb1-132"></a>  <span class="fu">setnames</span>(<span class="st">"disambig_assignee_organization"</span>,<span class="st">"company"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-133"><a href="#cb1-133"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">10</span>)</span>
-<span id="cb1-134"><a href="#cb1-134"></a></span>
-<span id="cb1-135"><a href="#cb1-135"></a><span class="co"># 5.3 Question 3: Innovation in Tech: What is the most innovative tech sector? </span></span>
-<span id="cb1-136"><a href="#cb1-136"></a><span class="co">#     For the top 10 companies (worldwide) with the most patents, </span></span>
-<span id="cb1-137"><a href="#cb1-137"></a><span class="co">#     what are the top 5 USPTO tech main classes?</span></span>
-<span id="cb1-138"><a href="#cb1-138"></a></span>
-<span id="cb1-139"><a href="#cb1-139"></a><span class="co"># Note top 10 companies first</span></span>
-<span id="cb1-140"><a href="#cb1-140"></a>compare_company <span class="ot">=</span> question_1_dt<span class="sc">$</span>assignee_id</span>
-<span id="cb1-141"><a href="#cb1-141"></a></span>
-<span id="cb1-142"><a href="#cb1-142"></a><span class="co"># Subset all the patents for only the top 10 companies</span></span>
-<span id="cb1-143"><a href="#cb1-143"></a><span class="co"># Allow counting multiple uspc mainclasses for a patent, since subclasses would differ</span></span>
-<span id="cb1-144"><a href="#cb1-144"></a>question_3_dt <span class="ot">&lt;-</span> </span>
-<span id="cb1-145"><a href="#cb1-145"></a>  combined_uspc_data[assignee_id <span class="sc">%in%</span> compare_company, .N, by <span class="ot">=</span> uspc_mainclass_id][<span class="fu">order</span>(<span class="sc">-</span>N)] <span class="sc">%&gt;%</span> </span>
-<span id="cb1-146"><a href="#cb1-146"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-111"><a href="#cb1-111"></a><span class="co">#     Important: Assignee type 2 filters by US companies</span></span>
+<span id="cb1-112"><a href="#cb1-112"></a></span>
+<span id="cb1-113"><a href="#cb1-113"></a>question_1_dt <span class="ot">&lt;-</span> assignee_data[assignee_type <span class="sc">==</span> <span class="dv">2</span>, .N , by <span class="ot">=</span> .(assignee_id,</span>
+<span id="cb1-114"><a href="#cb1-114"></a>                                             disambig_assignee_organization)][<span class="fu">order</span>(<span class="sc">-</span>N)] <span class="sc">%&gt;%</span> </span>
+<span id="cb1-115"><a href="#cb1-115"></a>  <span class="fu">setnames</span>(<span class="st">"disambig_assignee_organization"</span>,<span class="st">"company"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-116"><a href="#cb1-116"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb1-117"><a href="#cb1-117"></a></span>
+<span id="cb1-118"><a href="#cb1-118"></a><span class="co"># 5.2 Question 2: Recent patent activity: What US company had the most patents</span></span>
+<span id="cb1-119"><a href="#cb1-119"></a><span class="co">#     granted in 2019? List the top 10 companies with the most new granted </span></span>
+<span id="cb1-120"><a href="#cb1-120"></a><span class="co">#     patents for 2019. </span></span>
+<span id="cb1-121"><a href="#cb1-121"></a><span class="co">#     Also filter by type 2 for US companies.</span></span>
+<span id="cb1-122"><a href="#cb1-122"></a></span>
+<span id="cb1-123"><a href="#cb1-123"></a>question_2_dt <span class="ot">&lt;-</span> </span>
+<span id="cb1-124"><a href="#cb1-124"></a>  combined_patent_data[<span class="fu">year</span>(patent_date) <span class="sc">==</span> <span class="dv">2019</span> <span class="sc">&amp;</span> assignee_type <span class="sc">==</span> <span class="dv">2</span>, .N, by <span class="ot">=</span> .(assignee_id,</span>
+<span id="cb1-125"><a href="#cb1-125"></a>                                                                                  disambig_assignee_organization)][<span class="fu">order</span>(<span class="sc">-</span>N)] <span class="sc">%&gt;%</span> </span>
+<span id="cb1-126"><a href="#cb1-126"></a>  <span class="fu">setnames</span>(<span class="st">"disambig_assignee_organization"</span>,<span class="st">"company"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-127"><a href="#cb1-127"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb1-128"><a href="#cb1-128"></a></span>
+<span id="cb1-129"><a href="#cb1-129"></a><span class="co"># 5.3 Question 3: Innovation in Tech: What is the most innovative tech sector? </span></span>
+<span id="cb1-130"><a href="#cb1-130"></a><span class="co">#     For the top 10 companies (worldwide) with the most patents, </span></span>
+<span id="cb1-131"><a href="#cb1-131"></a><span class="co">#     what are the top 5 USPTO tech main classes?</span></span>
+<span id="cb1-132"><a href="#cb1-132"></a></span>
+<span id="cb1-133"><a href="#cb1-133"></a><span class="co"># Note top 10 companies (worldwide) first</span></span>
+<span id="cb1-134"><a href="#cb1-134"></a>compare_company <span class="ot">&lt;-</span> assignee_data[, .N, by <span class="ot">=</span> .(assignee_id)][<span class="fu">order</span>(<span class="sc">-</span>N),.(assignee_id)] <span class="sc">%&gt;%</span> </span>
+<span id="cb1-135"><a href="#cb1-135"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-136"><a href="#cb1-136"></a>  <span class="fu">pull</span>()</span>
+<span id="cb1-137"><a href="#cb1-137"></a></span>
+<span id="cb1-138"><a href="#cb1-138"></a><span class="co"># Subset all the patents for only the top 10 companies</span></span>
+<span id="cb1-139"><a href="#cb1-139"></a><span class="co"># Allow counting multiple uspc mainclasses for a patent, since subclasses would differ</span></span>
+<span id="cb1-140"><a href="#cb1-140"></a>question_3_dt <span class="ot">&lt;-</span> </span>
+<span id="cb1-141"><a href="#cb1-141"></a>  combined_uspc_data[assignee_id <span class="sc">%in%</span> compare_company, .N, by <span class="ot">=</span> .(uspc_mainclass_id,</span>
+<span id="cb1-142"><a href="#cb1-142"></a>                                                                  uspc_mainclass_title)][<span class="fu">order</span>(<span class="sc">-</span>N)] <span class="sc">%&gt;%</span> </span>
+<span id="cb1-143"><a href="#cb1-143"></a>  <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section><section id="print-solutions" class="level1" data-number="2"><h1 data-number="2">
 <span class="header-section-number">2</span> Print Solutions</h1>
-<div class="cell" data-hash="03_data_wrangling_cache/html/unnamed-chunk-2_34acf7326b16e7441ce97b135df6b6c7">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># IBM has the most patents!</span></span>
+<div class="cell" data-hash="03_data_wrangling_cache/html/unnamed-chunk-2_a12a4d140fec55bf6b80a54a1fe1c1bc">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># IBM has the most patents.</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a>question_1_dt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["assignee_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["company"],"name":[4],"type":["chr"],"align":["left"]},{"label":["N"],"name":[5],"type":["int"],"align":["right"]}],"data":[{"1":"131272b5-c296-4ef9-b2ae-2e34e9055490","2":"NA","3":"NA","4":"INTERNATIONAL BUSINESS MACHINES CORPORATION","5":"160160"},{"1":"15236fce-f79c-483e-b5b5-8d60943a8bf9","2":"NA","3":"NA","4":"Samsung Display Co., Ltd.","5":"156237"},{"1":"472e89f2-7f69-4842-b4c3-1510ef2a67ed","2":"NA","3":"NA","4":"CANON KABUSHIKI KAISHA","5":"86653"},{"1":"6c6a4254-2e4a-4484-860a-864e676019f1","2":"NA","3":"NA","4":"SONY CORPORATION","5":"60551"},{"1":"972289d2-a66f-4134-b40b-066e1037511e","2":"NA","3":"NA","4":"FUJITSU LIMITED","5":"56009"},{"1":"93e2cc72-3302-4a3b-b9a0-cf1fb1a20495","2":"NA","3":"NA","4":"Kabushiki Kaisha Toshiba","5":"52494"},{"1":"06494a2a-f3dc-447d-b232-5ee9b3626b2c","2":"Damian","3":"Wasserbauer","4":"General Electric Company","5":"50946"},{"1":"47e99f6a-c8a3-4528-9e74-4f062bbe239e","2":"NA","3":"NA","4":"Intel Corporation","5":"49717"},{"1":"3fbb081d-e8d9-4ab9-baf8-0b28f955480c","2":"NA","3":"NA","4":"HITACHI, LTD.","5":"45683"},{"1":"a71a6820-024a-48c3-9fac-b20f17c93e35","2":"NA","3":"NA","4":"LG ELECTRONICS INC.","5":"44975"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["assignee_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["company"],"name":[2],"type":["chr"],"align":["left"]},{"label":["N"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"131272b5-c296-4ef9-b2ae-2e34e9055490","2":"INTERNATIONAL BUSINESS MACHINES CORPORATION","3":"160160"},{"1":"06494a2a-f3dc-447d-b232-5ee9b3626b2c","2":"General Electric Company","3":"50946"},{"1":"47e99f6a-c8a3-4528-9e74-4f062bbe239e","2":"Intel Corporation","3":"49717"},{"1":"21d27da9-33be-4d4b-a94e-685c1525c9aa","2":"QUALCOMM Incorporated","3":"35540"},{"1":"b97fbbf3-9b55-472c-a9fc-c094c954795b","2":"Micron Technology, Inc.","3":"35468"},{"1":"f94215a0-b0d5-4aba-88de-614ff1829c0c","2":"Apple Inc.","3":"33004"},{"1":"09a71a64-df4e-4a9e-a137-48239654ee9f","2":"Microsoft Corporation","3":"30245"},{"1":"200759c4-8bd1-44a2-9444-c20ae07388bb","2":"TEXAS INSTRUMENTS INCORPORATED","3":"27894"},{"1":"74d18aa5-bde3-4464-9158-9297522b409a","2":"GOOGLE LLC","3":"27846"},{"1":"f6966377-f838-4376-8120-adcb10f7ab91","2":"Hewlett-Packard Development Company, L.P.","3":"26800"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Samsung had the most newly granted patents in 2019!</span></span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># IBM also had the most newly granted patents in 2019.</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a>question_2_dt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["assignee_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["first_name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["last_name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["company"],"name":[4],"type":["chr"],"align":["left"]},{"label":["N"],"name":[5],"type":["int"],"align":["right"]}],"data":[{"1":"15236fce-f79c-483e-b5b5-8d60943a8bf9","2":"NA","3":"NA","4":"Samsung Display Co., Ltd.","5":"9961"},{"1":"131272b5-c296-4ef9-b2ae-2e34e9055490","2":"NA","3":"NA","4":"INTERNATIONAL BUSINESS MACHINES CORPORATION","5":"9268"},{"1":"472e89f2-7f69-4842-b4c3-1510ef2a67ed","2":"NA","3":"NA","4":"CANON KABUSHIKI KAISHA","5":"3594"},{"1":"a71a6820-024a-48c3-9fac-b20f17c93e35","2":"NA","3":"NA","4":"LG ELECTRONICS INC.","5":"3314"},{"1":"35e17eb6-f79c-4e18-b44a-da23f3fb29e5","2":"NA","3":"NA","4":"Microsoft Technology Licensing, LLC","5":"3104"},{"1":"47e99f6a-c8a3-4528-9e74-4f062bbe239e","2":"NA","3":"NA","4":"Intel Corporation","5":"3059"},{"1":"f94215a0-b0d5-4aba-88de-614ff1829c0c","2":"NA","3":"NA","4":"Apple Inc.","5":"2818"},{"1":"d7e8a0a1-0ccc-48ad-b397-5e277926b45b","2":"NA","3":"NA","4":"Ford Global Technologies, LLC","5":"2624"},{"1":"b105619e-441d-4894-ba22-88bf5d8efad2","2":"NA","3":"NA","4":"Amazon Technologies, Inc.","5":"2535"},{"1":"6d582076-3e9a-4d45-a45e-413b8e9b2b16","2":"NA","3":"NA","4":"HUAWEI TECHNOLOGIES CO. LTD.","5":"2454"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["assignee_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["company"],"name":[2],"type":["chr"],"align":["left"]},{"label":["N"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"131272b5-c296-4ef9-b2ae-2e34e9055490","2":"INTERNATIONAL BUSINESS MACHINES CORPORATION","3":"9263"},{"1":"35e17eb6-f79c-4e18-b44a-da23f3fb29e5","2":"Microsoft Technology Licensing, LLC","3":"3102"},{"1":"47e99f6a-c8a3-4528-9e74-4f062bbe239e","2":"Intel Corporation","3":"3029"},{"1":"f94215a0-b0d5-4aba-88de-614ff1829c0c","2":"Apple Inc.","3":"2500"},{"1":"d7e8a0a1-0ccc-48ad-b397-5e277926b45b","2":"Ford Global Technologies, LLC","3":"2468"},{"1":"b105619e-441d-4894-ba22-88bf5d8efad2","2":"Amazon Technologies, Inc.","3":"2435"},{"1":"21d27da9-33be-4d4b-a94e-685c1525c9aa","2":"QUALCOMM Incorporated","3":"2358"},{"1":"74d18aa5-bde3-4464-9158-9297522b409a","2":"GOOGLE LLC","3":"2111"},{"1":"06494a2a-f3dc-447d-b232-5ee9b3626b2c","2":"General Electric Company","3":"1819"},{"1":"99fdd87c-08d6-4348-bd90-ec8ee3c77144","2":"The Boeing Company","3":"1382"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># Top 5 main classes : 257, 438, 370, 430, 365 (considering only the top 10)</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a>question_3_dt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># Most innovative tech sector: ACTIVE SOLID-STATE DEVICES (E.G., TRANSISTORS, SOLID-STATE DIODES)</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="co"># Top 5 main classes : 257, 438, 370, 430, 365 (considering only the top 10)</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>question_3_dt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div data-pagedtable="false">
   <script data-pagedtable-source="" type="application/json">
-{"columns":[{"label":["uspc_mainclass_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["N"],"name":[2],"type":["int"],"align":["right"]}],"data":[{"1":"257","2":"108653"},{"1":"438","2":"64315"},{"1":"370","2":"51674"},{"1":"430","2":"45380"},{"1":"365","2":"44851"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["uspc_mainclass_id"],"name":[1],"type":["chr"],"align":["left"]},{"label":["uspc_mainclass_title"],"name":[2],"type":["chr"],"align":["left"]},{"label":["N"],"name":[3],"type":["int"],"align":["right"]}],"data":[{"1":"257","2":"ACTIVE SOLID-STATE DEVICES (E.G., TRANSISTORS, SOLID-STATE DIODES)","3":"108653"},{"1":"438","2":"SEMICONDUCTOR DEVICE MANUFACTURING: PROCESS","3":"64315"},{"1":"370","2":"MULTIPLEX COMMUNICATIONS","3":"51674"},{"1":"430","2":"RADIATION IMAGERY CHEMISTRY: PROCESS, COMPOSITION, OR PRODUCT THEREOF","3":"45380"},{"1":"365","2":"STATIC INFORMATION STORAGE AND RETRIEVAL","3":"44851"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
