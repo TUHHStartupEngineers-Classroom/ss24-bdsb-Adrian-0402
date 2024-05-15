@@ -1,43 +1,34 @@
 library(tidyverse) # loads ggplot2
 library(lubridate)
+library(ggthemes)
+
+# 1.0 Lollipop Chart: Top N Customers ----
 
 bike_orderlines_tbl <- read_rds("~/GitHub/ss24-bdsb-Adrian-0402/source_data/00_data/02_wrangled_data/bike_orderlines.rds")
 
-# 1.0 Anatomy of a ggplot ----
-
-# 1.1 How ggplot works ----
-
-# Step 1: Format data ----
-
-sales_by_year_tbl <- bike_orderlines_tbl %>%
+# 2.0 Data manipulation ----
+# Select columns and filter categories
+pct_sales_by_customer_tbl <- bike_orderlines_tbl %>%
   
-  # Selecting columns to focus on and adding a year column
-  select(order_date, total_price) %>%
-  mutate(year = year(order_date)) %>%
+  select(bikeshop, category_1, category_2, quantity) %>%
+  filter(category_1 %in% c("Mountain","Road")) %>% 
   
-  # Grouping by year, and summarizing sales
-  group_by(year) %>%
-  summarize(sales = sum(total_price)) %>%
+  # Group by category and summarize
+  group_by(bikeshop, category_1, category_2) %>%
+  summarise(total_qty = sum(quantity)) %>%
   ungroup() %>%
   
-  # € Format Text
-  mutate(sales_text = scales::dollar(sales, 
-                                     big.mark     = ".", 
-                                     decimal.mark = ",", 
-                                     prefix       = "", 
-                                     suffix       = " €"))
-
-sales_by_year_tbl
-
-# Step 2: Plot ----
-# Violin Plot & Jitter Plot
-
-unit_price_by_cat_2_tbl %>%
+  # Add missing groups (not necessarily mandatory, but we'd get holes in the plot)
+  # complete() creates NAs. We need to set those to 0.
+  complete(bikeshop, nesting(category_1, category_2)) %>% 
+  mutate(across(total_qty, ~replace_na(., 0))) %>%  
   
-  ggplot(aes(category_2, price)) +
+  # Group by bikeshop and calculate revenue ratio
+  group_by(bikeshop) %>%
+  mutate(pct = total_qty / sum(total_qty)) %>%
+  ungroup() %>%
   
-  geom_jitter(width = 0.15, color = "#2c3e50") +
-  geom_violin(alpha = 0.5) +
-  
-  coord_flip()
-
+  # Reverse order of bikeshops
+  mutate(bikeshop = as.factor(bikeshop) %>% fct_rev()) %>%
+  # Just to verify
+  mutate(bikeshop_num = as.numeric(bikeshop))

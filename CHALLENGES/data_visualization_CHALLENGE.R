@@ -1,15 +1,3 @@
----
-title: "Data Visualization"
-author: "Adrian Florea"
----
-
-# Cumulative COVID-19 Cases
-
-```{r}
-#| eval: true
-#| message: false
-#| warning: false
-
 library(tidyverse)
 library(lubridate)
 library(ggthemes)
@@ -86,4 +74,4 @@ covid_cum_cases %>%
   y = "Cumulative Cases",
   color = "Continent / Country"
   )
-```
+  
