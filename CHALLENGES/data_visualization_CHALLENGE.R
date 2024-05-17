@@ -4,7 +4,7 @@ library(ggthemes)
 
 covid_data_tbl <- read_csv("https://covid.ourworldindata.org/data/owid-covid-data.csv")
 
-# 1.0 Data Manipulation ----
+# 1.0 Data Manipulation Challenge 1 ----
 
 filter_countries <- c("Germany", "United Kingdom", "France", "Spain", "United States")
 
@@ -34,7 +34,7 @@ custom_label_country <- covid_cum_cases %>%
 custom_label_europe <- europe_cases %>% 
   filter(date == "2022-04-19")
 
-# 2.0 Data Visualization ----
+# 2.0 Data Visualization Challenge 1 ----
 
 covid_cum_cases %>%
   
@@ -75,3 +75,61 @@ covid_cum_cases %>%
   color = "Continent / Country"
   )
   
+# 3.0 Data Manipulation 
+# 3.0 Data Manipulation Challenge 2 ----
+
+world <- map_data("world")
+
+covid_deaths_pop <- covid_data_tbl %>% 
+  filter(!is.na(continent) & year(date) == 2022 & month(date) == 12 & day(date) == 31) %>% 
+  select(location,population,total_deaths,date) %>% 
+  mutate(across(total_deaths, ~replace_na(., 0))) %>% 
+  mutate(deaths_pop = total_deaths / population) %>% 
+  
+  mutate(location = case_when(
+    location == "United Kingdom" ~ "UK",
+    location == "United States" ~ "USA",
+    location == "Democratic Republic of Congo" ~ "Democratic Republic of the Congo",
+    TRUE ~ location
+  )) %>% 
+  distinct()
+
+covid_deaths_pop_joined <- covid_deaths_pop %>% 
+  right_join(world, join_by(location == region))
+
+# Choose stopping point at end of 2022, since many countries stopped reporting during 2023
+
+# 4.0 Data Visualization Challenge 2 ----
+
+covid_deaths_pop_joined %>% 
+  
+  ggplot(aes(fill = deaths_pop, map_id = location)) +
+  
+  # Geometries
+  geom_map(map = world, color = "grey65", linewidth = 0.01) +
+  
+  # Scales
+  scale_fill_continuous(low = "#e3595d", high = "#520104",
+                        labels = scales::percent_format(accuracy = 0.1)) +
+  expand_limits(x = world$long, y = world$lat) +
+  
+  # Themes
+  theme_map() +
+  
+  theme(
+    legend.position = c(-0.1, 0.35),
+    plot.margin = unit(c(0, 0, 0, 2), "cm"),
+    plot.background = element_rect(fill = "#0a1b30"),
+    legend.background = element_rect(fill = "#0a1b30"),
+    text = element_text(color = "white")
+  ) +
+  
+  # Labels
+  labs(
+    title = "Confirmed COVID-19 deaths relative to population size",
+    subtitle = "As of 31/12/2022",
+    fill = "Mortality Rate"
+  )
+  
+
+
