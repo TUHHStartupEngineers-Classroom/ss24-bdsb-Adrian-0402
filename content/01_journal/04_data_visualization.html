@@ -161,6 +161,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul class="collapse">
 <li><a href="#cumulative-covid-19-cases" id="toc-cumulative-covid-19-cases" class="nav-link active" data-scroll-target="#cumulative-covid-19-cases"><span class="header-section-number">1</span> Cumulative COVID-19 Cases</a></li>
+  <li><a href="#covid-19-deaths-per-relative-population-size" id="toc-covid-19-deaths-per-relative-population-size" class="nav-link" data-scroll-target="#covid-19-deaths-per-relative-population-size"><span class="header-section-number">2</span> COVID-19 Deaths per relative population size</a></li>
   </ul></nav>
     </div>
 <!-- main -->
@@ -266,6 +267,71 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure"><p><a href="04_data_visualization_files/figure-html/unnamed-chunk-1-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="04_data_visualization_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section id="covid-19-deaths-per-relative-population-size" class="level1" data-number="2"><h1 data-number="2">
+<span class="header-section-number">2</span> COVID-19 Deaths per relative population size</h1>
+<div class="cell" data-hash="04_data_visualization_cache/html/unnamed-chunk-2_855a0387f73cffc8e26348c8c36124bd">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># 3.0 Data Manipulation Challenge 2 ----</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3"></a>world <span class="ot">&lt;-</span> <span class="fu">map_data</span>(<span class="st">"world"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a>covid_deaths_pop <span class="ot">&lt;-</span> covid_data_tbl <span class="sc">%&gt;%</span> </span>
+<span id="cb2-6"><a href="#cb2-6"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(continent) <span class="sc">&amp;</span> <span class="fu">year</span>(date) <span class="sc">==</span> <span class="dv">2022</span> <span class="sc">&amp;</span> <span class="fu">month</span>(date) <span class="sc">==</span> <span class="dv">12</span> <span class="sc">&amp;</span> <span class="fu">day</span>(date) <span class="sc">==</span> <span class="dv">31</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="fu">select</span>(location,population,total_deaths,date) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-8"><a href="#cb2-8"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(total_deaths, <span class="sc">~</span><span class="fu">replace_na</span>(., <span class="dv">0</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-9"><a href="#cb2-9"></a>  <span class="fu">mutate</span>(<span class="at">deaths_pop =</span> total_deaths <span class="sc">/</span> population) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-10"><a href="#cb2-10"></a>  </span>
+<span id="cb2-11"><a href="#cb2-11"></a>  <span class="fu">mutate</span>(<span class="at">location =</span> <span class="fu">case_when</span>(</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    location <span class="sc">==</span> <span class="st">"United Kingdom"</span> <span class="sc">~</span> <span class="st">"UK"</span>,</span>
+<span id="cb2-13"><a href="#cb2-13"></a>    location <span class="sc">==</span> <span class="st">"United States"</span> <span class="sc">~</span> <span class="st">"USA"</span>,</span>
+<span id="cb2-14"><a href="#cb2-14"></a>    location <span class="sc">==</span> <span class="st">"Democratic Republic of Congo"</span> <span class="sc">~</span> <span class="st">"Democratic Republic of the Congo"</span>,</span>
+<span id="cb2-15"><a href="#cb2-15"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> location</span>
+<span id="cb2-16"><a href="#cb2-16"></a>  )) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-17"><a href="#cb2-17"></a>  <span class="fu">distinct</span>()</span>
+<span id="cb2-18"><a href="#cb2-18"></a></span>
+<span id="cb2-19"><a href="#cb2-19"></a>covid_deaths_pop_joined <span class="ot">&lt;-</span> covid_deaths_pop <span class="sc">%&gt;%</span> </span>
+<span id="cb2-20"><a href="#cb2-20"></a>  <span class="fu">right_join</span>(world, <span class="fu">join_by</span>(location <span class="sc">==</span> region))</span>
+<span id="cb2-21"><a href="#cb2-21"></a></span>
+<span id="cb2-22"><a href="#cb2-22"></a><span class="co"># Choose stopping point at end of 2022, since many countries stopped reporting during 2023</span></span>
+<span id="cb2-23"><a href="#cb2-23"></a></span>
+<span id="cb2-24"><a href="#cb2-24"></a><span class="co"># 4.0 Data Visualization Challenge 2 ----</span></span>
+<span id="cb2-25"><a href="#cb2-25"></a></span>
+<span id="cb2-26"><a href="#cb2-26"></a>covid_deaths_pop_joined <span class="sc">%&gt;%</span> </span>
+<span id="cb2-27"><a href="#cb2-27"></a>  </span>
+<span id="cb2-28"><a href="#cb2-28"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> deaths_pop, <span class="at">map_id =</span> location)) <span class="sc">+</span></span>
+<span id="cb2-29"><a href="#cb2-29"></a>  </span>
+<span id="cb2-30"><a href="#cb2-30"></a>  <span class="co"># Geometries</span></span>
+<span id="cb2-31"><a href="#cb2-31"></a>  <span class="fu">geom_map</span>(<span class="at">map =</span> world, <span class="at">color =</span> <span class="st">"grey65"</span>, <span class="at">linewidth =</span> <span class="fl">0.01</span>) <span class="sc">+</span></span>
+<span id="cb2-32"><a href="#cb2-32"></a>  </span>
+<span id="cb2-33"><a href="#cb2-33"></a>  <span class="co"># Scales</span></span>
+<span id="cb2-34"><a href="#cb2-34"></a>  <span class="fu">scale_fill_continuous</span>(<span class="at">low =</span> <span class="st">"#e3595d"</span>, <span class="at">high =</span> <span class="st">"#520104"</span>,</span>
+<span id="cb2-35"><a href="#cb2-35"></a>                        <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)) <span class="sc">+</span></span>
+<span id="cb2-36"><a href="#cb2-36"></a>  </span>
+<span id="cb2-37"><a href="#cb2-37"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> world<span class="sc">$</span>long, <span class="at">y =</span> world<span class="sc">$</span>lat) <span class="sc">+</span></span>
+<span id="cb2-38"><a href="#cb2-38"></a>  </span>
+<span id="cb2-39"><a href="#cb2-39"></a>  <span class="co"># Themes</span></span>
+<span id="cb2-40"><a href="#cb2-40"></a>  <span class="fu">theme_map</span>() <span class="sc">+</span></span>
+<span id="cb2-41"><a href="#cb2-41"></a>  </span>
+<span id="cb2-42"><a href="#cb2-42"></a>  <span class="fu">theme</span>(</span>
+<span id="cb2-43"><a href="#cb2-43"></a>    <span class="at">legend.position =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.1</span>, <span class="fl">0.35</span>),</span>
+<span id="cb2-44"><a href="#cb2-44"></a>    <span class="at">plot.margin =</span> <span class="fu">unit</span>(<span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">2</span>), <span class="st">"cm"</span>),</span>
+<span id="cb2-45"><a href="#cb2-45"></a>    <span class="at">plot.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">"#0a1b30"</span>),</span>
+<span id="cb2-46"><a href="#cb2-46"></a>    <span class="at">legend.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">"#0a1b30"</span>),</span>
+<span id="cb2-47"><a href="#cb2-47"></a>    <span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"white"</span>)</span>
+<span id="cb2-48"><a href="#cb2-48"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-49"><a href="#cb2-49"></a>  </span>
+<span id="cb2-50"><a href="#cb2-50"></a>  <span class="co"># Labels</span></span>
+<span id="cb2-51"><a href="#cb2-51"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-52"><a href="#cb2-52"></a>    <span class="at">title =</span> <span class="st">"Confirmed COVID-19 deaths relative to population size"</span>,</span>
+<span id="cb2-53"><a href="#cb2-53"></a>    <span class="at">subtitle =</span> <span class="st">"As of 31/12/2022"</span>,</span>
+<span id="cb2-54"><a href="#cb2-54"></a>    <span class="at">fill =</span> <span class="st">"Mortality Rate"</span></span>
+<span id="cb2-55"><a href="#cb2-55"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><a href="04_data_visualization_files/figure-html/unnamed-chunk-2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="04_data_visualization_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></a></p>
 </figure>
 </div>
 </div>
@@ -621,7 +687,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<script>var lightboxQuarto = GLightbox({"selector":".lightbox","loop":true,"closeEffect":"zoom","descPosition":"bottom","openEffect":"zoom"});</script>
+<script>var lightboxQuarto = GLightbox({"loop":true,"descPosition":"bottom","selector":".lightbox","closeEffect":"zoom","openEffect":"zoom"});</script>
 
 
 </body></html>
